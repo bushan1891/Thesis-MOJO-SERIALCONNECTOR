@@ -62,7 +62,7 @@ public class MyAssign1 extends JFrame
   JPanel myjp2 = new JPanel();
   JButton pointer = new JButton(new ImageIcon("res/icons/pointer.gif"));
   JButton hotjb = new JButton(new ImageIcon("res/hotlink.gif"));
-  JButton gesture = new JButton(new ImageIcon("res/hotlink.gif"));
+  JButton gesture = new JButton(new ImageIcon("res/gesture2.gif"));
   
   Arrow arrow = new Arrow();
   ActionListener lis;

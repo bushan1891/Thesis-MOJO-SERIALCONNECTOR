@@ -1,31 +1,35 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import gnu.io.CommPortIdentifier; 
+import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
-import gnu.io.SerialPortEvent; 
-import gnu.io.SerialPortEventListener; 
+import gnu.io.SerialPortEvent;
+import gnu.io.SerialPortEventListener;
 import java.util.Enumeration;
 
 import com.esri.mo2.cs.geom.Envelope;
 import com.esri.mo2.ui.bean.Map;
 
-
 public class SerialTest implements SerialPortEventListener {
 	SerialPort serialPort;
-        /** The port we're normally going to use. */
-	private static final String PORT_NAMES[] = { 
-			"/dev/tty.usbserial-A9007UX1", // Mac OS X
-                        "/dev/ttyACM0", // Raspberry Pi
+	/** The port we're normally going to use. */
+	private static final String PORT_NAMES[] = { "/dev/tty.usbserial-A9007UX1", // Mac
+																				// OS
+																				// X
+			"/dev/ttyACM0", // Raspberry Pi
 			"/dev/ttyUSB0", // Linux
 			"COM3", // Windows
 	};
 	/**
-	* A BufferedReader which will be fed by a InputStreamReader 
-	* converting the bytes into characters 
-	* making the displayed results codepage independent
-	*/
-	static String inputLine ="";
+	 * A BufferedReader which will be fed by a InputStreamReader converting the
+	 * bytes into characters making the displayed results codepage independent
+	 */
+	Map m;
+	Envelope e;
+	
+	double z;
+	
+	static String inputLine = "";
 	private BufferedReader input;
 	/** The output stream to the port */
 	private OutputStream output;
@@ -34,17 +38,22 @@ public class SerialTest implements SerialPortEventListener {
 	/** Default bits per second for COM port. */
 	private static final int DATA_RATE = 9600;
 
-	public void initialize() {
-                // the next line is for Raspberry Pi and 
-                // gets us into the while loop and was suggested here was suggested http://www.raspberrypi.org/phpBB3/viewtopic.php?f=81&t=32186
-             //   System.setProperty("gnu.io.rxtx.SerialPorts", "/dev/ttyACM0");
+	public void initialize(Map map, Envelope env) {
+		// the next line is for Raspberry Pi and
+		// gets us into the while loop and was suggested here was suggested
+		// http://www.raspberrypi.org/phpBB3/viewtopic.php?f=81&t=32186
+		// System.setProperty("gnu.io.rxtx.SerialPorts", "/dev/ttyACM0");
 
+		m = map;
+		e = env;
+		double z = 0;
 		CommPortIdentifier portId = null;
 		Enumeration portEnum = CommPortIdentifier.getPortIdentifiers();
 
-		//First, Find an instance of serial port as set in PORT_NAMES.
+		// First, Find an instance of serial port as set in PORT_NAMES.
 		while (portEnum.hasMoreElements()) {
-			CommPortIdentifier currPortId = (CommPortIdentifier) portEnum.nextElement();
+			CommPortIdentifier currPortId = (CommPortIdentifier) portEnum
+					.nextElement();
 			for (String portName : PORT_NAMES) {
 				if (currPortId.getName().equals(portName)) {
 					portId = currPortId;
@@ -63,26 +72,25 @@ public class SerialTest implements SerialPortEventListener {
 					TIME_OUT);
 
 			// set port parameters
-			serialPort.setSerialPortParams(DATA_RATE,
-					SerialPort.DATABITS_8,
-					SerialPort.STOPBITS_1,
-					SerialPort.PARITY_NONE);
+			serialPort.setSerialPortParams(DATA_RATE, SerialPort.DATABITS_8,
+					SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 
 			// open the streams
-			input = new BufferedReader(new InputStreamReader(serialPort.getInputStream()));
+			input = new BufferedReader(new InputStreamReader(
+					serialPort.getInputStream()));
 			output = serialPort.getOutputStream();
 
 			// add event listeners
 			serialPort.addEventListener(this);
 			serialPort.notifyOnDataAvailable(true);
-		} catch (Exception e) {
-			System.err.println(e.toString());
+		} catch (Exception e1) {
+			System.err.println(e1.toString());
 		}
 	}
 
 	/**
-	 * This should be called when you stop using the port.
-	 * This will prevent port locking on platforms like Linux.
+	 * This should be called when you stop using the port. This will prevent
+	 * port locking on platforms like Linux.
 	 */
 	public synchronized void close() {
 		if (serialPort != null) {
@@ -97,31 +105,65 @@ public class SerialTest implements SerialPortEventListener {
 	public synchronized void serialEvent(SerialPortEvent oEvent) {
 		if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
 			try {
-				 inputLine=input.readLine();
+				inputLine = input.readLine();
 				System.out.println(inputLine);
+				int n = Integer.parseInt(inputLine);
+				System.out.println("n is"+n);
+				// m.zoom(n);
+				
+				
+				if( n>1 && n<10)
+					z=0.2;
+				else if( n>10 && n<20)
+					z=0.4;
+				else if( n>20 && n<30)
+					z=0.6;
+				else if(n>30 && n<40)
+					z=0.8;
+				else if(n>40 && n<50)
+					z=1;
+				else if (n>50 && n<60)
+					z=4;
+				else if( n>60 && n<70)
+					z=7;
+				
+				
+				
+				
+				
+				
+					
+				m.setExtent(e);
+				m.zoom(z); // scale is scale factor in pixels
+				m.redraw();
+				
 			} catch (Exception e) {
 				System.err.println(e.toString());
 			}
 		}
-		// Ignore all the other eventTypes, but you should consider the other ones.
+		// Ignore all the other eventTypes, but you should consider the other
+		// ones.
 	}
 
 	public static void test(Map map, Envelope env) throws Exception {
 		SerialTest main = new SerialTest();
-		main.initialize();
-		Thread t=new Thread() {
+		main.initialize(map, env);
+		Thread t = new Thread() {
 			public void run() {
-				//the following line will keep this app alive for 1000 seconds,
-				//waiting for events to occur and responding to them (printing incoming messages to console).
-				try {Thread.sleep(100000000);
-				System.out.println("i am called too ");
-				
-				} catch (InterruptedException ie) {}
+				// the following line will keep this app alive for 1000 seconds,
+				// waiting for events to occur and responding to them (printing
+				// incoming messages to console).
+				try {
+					Thread.sleep(100000000);
+					System.out.println("i am called too ");
+
+				} catch (InterruptedException ie) {
+				}
 			}
 		};
 		t.start();
 		System.out.println("Started");
 		// int i = Integer.parseInt(inputLine);
-		
+
 	}
 }
