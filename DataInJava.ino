@@ -17,7 +17,7 @@
 #define trigPin 8 // Trigger Pin
 #define LEDPin 13 // Onboard LED
 
-int maximumRange = 50; // Maximum range needed
+int maximumRange = 70; // Maximum range needed
 int minimumRange = 0; // Minimum range needed
 long duration, distance; // Duration used to calculate distance
 
@@ -46,7 +46,7 @@ void loop() {
  if (distance >= maximumRange || distance <= minimumRange){
  /* Send a negative number to computer and Turn LED ON 
  to indicate "out of range" */
- Serial.println("-1");
+// Serial.println("-1");
  digitalWrite(LEDPin, HIGH); 
  }
  else {
@@ -57,5 +57,5 @@ void loop() {
  }
  
  //Delay 50ms before next reading.
- delay(5);
+ delay(500);
 }
