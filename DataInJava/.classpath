@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/RXTXcomm.jar"/>
+	<classpathentry kind="lib" path="F:/thesis/DataInJava/rxtx-2.2-64bit/ch-rxtx-2.2-20081207-win-x64/RXTXcomm.jar"/>
+	<classpathentry kind="lib" path="F:/thesis/DataInJava/rxtx-2.1-32bit/rxtx-2.1-7-bins-r2/Windows/i368-mingw32/rxtxParallel.dll"/>
+	<classpathentry kind="lib" path="F:/thesis/DataInJava/rxtx-2.1-32bit/rxtx-2.1-7-bins-r2/Windows/i368-mingw32/rxtxSerial.dll"/>
+	<classpathentry kind="lib" path="F:/thesis/DataInJava/rxtx-2.1-32bit.zip"/>
+	<classpathentry kind="lib" path="F:/thesis/DataInJava/rxtx-2.2-64bit.zip"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
