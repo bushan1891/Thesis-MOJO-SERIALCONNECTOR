@@ -1,10 +1,11 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.Enumeration;
 
 import com.esri.mo2.cs.geom.Envelope;
@@ -26,9 +27,9 @@ public class SerialTest implements SerialPortEventListener {
 	 */
 	Map m;
 	Envelope e;
-	
+	Integer fieldLevel; // field of operation
 	double z;
-	
+
 	static String inputLine = "";
 	private BufferedReader input;
 	/** The output stream to the port */
@@ -38,7 +39,7 @@ public class SerialTest implements SerialPortEventListener {
 	/** Default bits per second for COM port. */
 	private static final int DATA_RATE = 9600;
 
-	public void initialize(Map map, Envelope env) {
+	public void initialize(Map map, Envelope env, Integer fl) {
 		// the next line is for Raspberry Pi and
 		// gets us into the while loop and was suggested here was suggested
 		// http://www.raspberrypi.org/phpBB3/viewtopic.php?f=81&t=32186
@@ -46,6 +47,7 @@ public class SerialTest implements SerialPortEventListener {
 
 		m = map;
 		e = env;
+		fieldLevel = fl;
 		double z = 0;
 		CommPortIdentifier portId = null;
 		Enumeration portEnum = CommPortIdentifier.getPortIdentifiers();
@@ -108,35 +110,29 @@ public class SerialTest implements SerialPortEventListener {
 				inputLine = input.readLine();
 				System.out.println(inputLine);
 				int n = Integer.parseInt(inputLine);
-				System.out.println("n is"+n);
+				System.out.println("n is" + n);
+				System.out.println("fl is " + fieldLevel);
 				// m.zoom(n);
-				
-				
-				if( n>1 && n<10)
-					z=0.2;
-				else if( n>10 && n<20)
-					z=0.4;
-				else if( n>20 && n<30)
-					z=0.6;
-				else if(n>30 && n<40)
-					z=0.8;
-				else if(n>40 && n<50)
-					z=1;
-				else if (n>50 && n<60)
-					z=4;
-				else if( n>60 && n<70)
-					z=7;
-				
-				
-				
-				
-				
-				
-					
+
+				if (n > (1 + fieldLevel) && n < (10 + fieldLevel))
+					z = 0.2;
+				else if (n > (10 + fieldLevel) && n < (20 + fieldLevel))
+					z = 0.4;
+				else if (n > (20 + fieldLevel) && n < (30 + fieldLevel))
+					z = 0.6;
+				else if (n > (30 + fieldLevel) && n < (40 + fieldLevel))
+					z = 0.8;
+				else if (n > (40 + fieldLevel) && n < (50 + fieldLevel))
+					z = 1;
+				else if (n > (50 + fieldLevel) && n < (60 + fieldLevel))
+					z = 4;
+				else if (n > (60 + fieldLevel) && n < (70 + fieldLevel))
+					z = 7;
+
 				m.setExtent(e);
 				m.zoom(z); // scale is scale factor in pixels
 				m.redraw();
-				
+
 			} catch (Exception e) {
 				System.err.println(e.toString());
 			}
@@ -145,9 +141,20 @@ public class SerialTest implements SerialPortEventListener {
 		// ones.
 	}
 
-	public static void test(Map map, Envelope env) throws Exception {
+	public static void test(Map map, Envelope env, Integer fieldL)
+			throws Exception {
 		SerialTest main = new SerialTest();
-		main.initialize(map, env);
+		if(fieldL==0)
+			fieldL=0;
+		else if (fieldL==1)
+			fieldL=20;
+		else if(fieldL==2)
+			fieldL=40;
+		
+		System.out.println("**************Refreshed*******************");
+		System.out.println("value of field " +fieldL );
+		main.fieldLevel=fieldL;
+		main.initialize(map, env, fieldL);
 		Thread t = new Thread() {
 			public void run() {
 				// the following line will keep this app alive for 1000 seconds,
